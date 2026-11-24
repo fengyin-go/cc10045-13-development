@@ -6,6 +6,14 @@
         <p class="page-desc">{{ meta.desc }}</p>
       </div>
       <div class="page-actions">
+        <RouterLink
+          v-if="meta.key === 'data_report' || meta.key === 'forecast_model'"
+          class="btn"
+          data-testid="open-review"
+          to="/forecast_review"
+        >
+          打开预测复盘
+        </RouterLink>
         <button class="btn primary" data-testid="open-create" type="button" @click="openCreate">
           登记{{ meta.entity }}
         </button>

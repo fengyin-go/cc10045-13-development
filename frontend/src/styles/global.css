@@ -70,3 +70,29 @@ body { margin: 0; background: #f6f8fb; color: #1f2937; }
 .analysis-chart { display: flex; align-items: flex-end; gap: 8px; height: 160px; padding: 12px 0; }
 .analysis-bar { flex: 1; border-radius: 4px 4px 0 0; background: var(--brand); min-width: 24px; position: relative; transition: height 0.4s; }
 .analysis-bar span { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--muted); white-space: nowrap; }
+/* 预测复盘 */
+.review-filter { gap: 12px; }
+.review-filter input[type="date"] { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+.review-filter input:not([type="date"]) { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; min-width: 200px; }
+.stat-note { display: block; color: var(--muted); font-size: 12px; margin-top: 4px; }
+.value-good { color: #15803d; }
+.value-bad { color: #b42318; }
+.caliber-note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #1e3a8a; }
+.section-title { font-size: 14px; margin: 18px 0 8px; }
+.badge { display: inline-block; border: 1px solid var(--border); border-radius: 999px; padding: 1px 9px; font-size: 12px; color: var(--muted); background: #f8fafc; }
+.badge-good { border-color: #86efac; background: #f0fdf4; color: #15803d; }
+.badge-bad { border-color: #fca5a5; background: #fef2f2; color: #b42318; }
+.badge-brand { border-color: #bfdbfe; background: #eff6ff; color: var(--brand); }
+.row-scored td { background: #f8fbff; }
+.review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.panel { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+.panel-hint { color: var(--muted); font-size: 12px; margin: 0 0 10px; }
+.inline-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.inline-form label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+.inline-form input, .inline-form select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+.action-note { font-size: 12px; color: #15803d; margin: 8px 0 0; }
+.version-list { margin: 10px 0 0; padding-left: 18px; font-size: 12px; color: var(--muted); }
+.issue-modal { width: min(760px, 100%); }
+.issue-meta { display: grid; grid-template-columns: 150px 1fr; gap: 6px 10px; font-size: 13px; margin: 12px 0; }
+.issue-meta dt { color: var(--muted); font-size: 12px; }
+.issue-meta dd { margin: 0; }

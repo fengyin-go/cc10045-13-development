@@ -224,6 +224,58 @@ DDL_STATEMENTS = [
         FOREIGN KEY (task_id) REFERENCES forecast_tasks(id)
     )""",
 
+    # 预测发布轮：同一业务日可以发布多轮预测区间，每一轮都有发布时间和轮次，可回查。
+    """CREATE TABLE IF NOT EXISTS forecast_releases (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_id INTEGER,
+        target_metric TEXT NOT NULL,
+        business_date TEXT NOT NULL,
+        release_round INTEGER NOT NULL,
+        released_at TEXT NOT NULL,
+        predicted_value REAL NOT NULL,
+        lower_bound REAL NOT NULL,
+        upper_bound REAL NOT NULL,
+        confidence REAL DEFAULT 0.95,
+        note TEXT DEFAULT '',
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE(target_metric, business_date, release_round),
+        FOREIGN KEY (task_id) REFERENCES forecast_tasks(id)
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_release_day ON forecast_releases(target_metric, business_date, released_at)",
+
+    # 实测确认：同一业务日允许追加实测版本（晚到实测是一个新版本），旧版本保留用于回查。
+    """CREATE TABLE IF NOT EXISTS forecast_actuals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        target_metric TEXT NOT NULL,
+        business_date TEXT NOT NULL,
+        actual_value REAL NOT NULL,
+        confirmed_at TEXT NOT NULL,
+        confirmed_by TEXT DEFAULT '',
+        note TEXT DEFAULT '',
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_actual_day ON forecast_actuals(target_metric, business_date, confirmed_at)",
+
+    # 日报签发：每次签发都冻结一份内容快照，晚到的实测或后续重发不会改写历史。
+    """CREATE TABLE IF NOT EXISTS report_issues (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        report_id INTEGER NOT NULL,
+        business_date TEXT NOT NULL,
+        target_metric TEXT NOT NULL,
+        issued_at TEXT NOT NULL,
+        accuracy_target REAL NOT NULL DEFAULT 1.0,
+        scored_release_id INTEGER,
+        scored_actual_id INTEGER,
+        hit INTEGER,
+        release_count INTEGER NOT NULL DEFAULT 0,
+        content TEXT NOT NULL DEFAULT '{}',
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (report_id) REFERENCES reports(id),
+        FOREIGN KEY (scored_release_id) REFERENCES forecast_releases(id),
+        FOREIGN KEY (scored_actual_id) REFERENCES forecast_actuals(id)
+    )""",
+    "CREATE INDEX IF NOT EXISTS idx_issue_report_day ON report_issues(report_id, business_date, issued_at)",
+
     # ==================== Comparison & Report Tier ====================
     """CREATE TABLE IF NOT EXISTS cohort_comparisons (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

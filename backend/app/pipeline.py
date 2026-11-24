@@ -1271,4 +1271,38 @@ def seed_real_data() -> dict[str, int]:
         })
     counts["alerts"] = len(alerts)
 
+    # 报告模板与预测任务：预测复盘视图的签发入口依赖这两类记录。
+    # 只初始化一次，避免重复调用 /api/pipeline/seed 时产生重复模板。
+    if db.count("reports") == 0:
+        report_templates = [
+            ("日度经营简报", "[]", "daily", "json"),
+            ("周度预测准确性复盘", "[]", "weekly", "json"),
+        ]
+        for name, metric_ids, period, fmt in report_templates:
+            db.insert("reports", {
+                "report_name": name,
+                "metric_ids": metric_ids,
+                "report_period": period,
+                "output_format": fmt,
+                "auto_send": 0,
+                "status": "已发布",
+            })
+        counts["reports"] = len(report_templates)
+
+    if db.count("forecast_tasks") == 0:
+        forecast_tasks = [
+            ("订单量日预测", "订单总量", 1, "moving_average", 30),
+            ("日活跃用户日预测", "日活跃用户数(DAU)", 1, "ses", 30),
+        ]
+        for name, metric, days, method, baseline in forecast_tasks:
+            db.insert("forecast_tasks", {
+                "task_name": name,
+                "target_metric": metric,
+                "forecast_period_days": days,
+                "forecast_method": method,
+                "baseline_days": baseline,
+                "status": "待执行",
+            })
+        counts["forecast_tasks"] = len(forecast_tasks)
+
     return counts

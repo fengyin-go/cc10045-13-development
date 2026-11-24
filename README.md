@@ -71,6 +71,34 @@ npm run dev
 | 漏斗分析器 | `funnel_analyzer` | 漏斗定义 | 漏斗名称、步骤序列、转化窗口小时 |
 | 多维数据集构建 | `cube_builder` | Cube定义 | Cube名称、事实表、维度组合 |
 
+## 预测复盘与日报签发
+
+预测模型的计分对象不是"预测任务的计算结果"，而是**发布轮**：
+
+- 同一业务日可以发布多轮预测区间，每轮都记录轮次、发布时间和可回查的区间
+  （`forecast_releases`）。旧轮次永远保留，不会被重发覆盖。
+- 业务日结束后的实测以版本追加的方式写入 `forecast_actuals`，晚到的实测是新版本，
+  不会改写已有版本。
+- 数据报告的复盘视图按业务日把实测和各发布轮关联起来，标出每轮是否命中、哪一轮计入日报准确性。
+- 计分口径只有一条：**在签发截止时间之前发布的轮次中，取发布时间最新的一轮**作为计分区间，
+  其余轮次作为"未计分版本"同时展示。
+- 签发日报会把当次的计分轮、实测版本和全部发布轮冻结进 `report_issues.content`。
+  之后晚到实测、加发预测或重算视图，只影响新视图；打开旧签发记录仍能看到当初的实测值和两条区间。
+
+相关接口：
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| POST | `/api/review/forecast-releases` | 发布一轮预测区间（同一业务日可多次） |
+| GET | `/api/review/forecast-releases?business_date=` | 按业务日回查发布轮 |
+| POST | `/api/review/forecast-actuals` | 确认实测（追加版本） |
+| GET | `/api/review/forecast-actuals?business_date=` | 回查实测版本 |
+| GET | `/api/review/daily?business_date=&target_metric=&as_of=` | 复盘视图：命中与计分轮 |
+| POST | `/api/review/issues` | 签发日报并冻结内容 |
+| GET | `/api/review/issues/{issue_id}` | 打开签发内容（含实际用于计分的实测） |
+
+前端入口：左侧导航「预测复盘」（`/forecast_review`），数据报告、预测模型页面也提供跳转。
+
 ## 约定
 
 - 全部模块共享`frontend/src/views/WorkbenchView.vue|tsx`和一套资源路由。
